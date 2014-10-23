@@ -1,0 +1,77 @@
+#!/bin/sh
+# $FreeBSD: logstash.rc 340872 2014-10-21 11:43:07Z rumba $
+
+# PROVIDE: logstash
+# REQUIRE: LOGIN cleanvar
+# KEYWORD: shutdown
+
+#
+# Add the following lines to /etc/rc.conf to enable logstash:
+# logstash_enable (bool):          Set to "NO" by default.
+#                               Set it to "YES" to enable logstash
+
+. /etc/rc.subr
+
+name="logstash"
+rcvar=logstash_enable
+
+start_precmd="logstash_precmd"
+#restart_precmd="logstash_precmd"
+configtest_precmd="logstash_checkjava"
+configtest_cmd="logstash_checkconfig"
+gracefulstop_cmd="logstash_gracefulstop"
+extra_commands="configtest gracefulstop"
+
+logstash_home="/opt/logstash"
+logstash_cmd="${logstash_home}/bin/logstash"
+logstash_config="${logstash_home}/logstash.conf"
+logstash_runopts="-w 8"
+logstash_log="/var/log/${name}.log"
+logstash_log_options="-l ${logstash_log}"
+_pidprefix="/var/run"
+logstash_pidfile="${_pidprefix}/${name}.pid"
+logstash_args="agent -f ${logstash_config} ${logstash_log_options} ${logstash_runopts}"
+java_home="/usr/local/openjdk7"
+java_opts=""
+
+command="/usr/sbin/daemon"
+command_args="-f -p ${logstash_pidfile} ${logstash_cmd} ${logstash_args}"
+required_files="${logstash_home} ${java_home} ${logstash_cmd} ${logstash_config}"
+
+
+[ -z "$logstash_enable" ]          && logstash_enable="NO"
+
+load_rc_config $name
+
+#java
+logstash_checkjava()
+{
+        if [ -z ${java_home} ] ; then
+                echo "JAVA path incorrect. Exiting..."
+                return 1
+        else
+                JAVA_HOME="${java_home}"
+                export JAVA_HOME
+        fi
+}
+
+logstash_checkconfig()
+{
+        echo "Performing sanity check on logstash configuration:"
+        eval ${logstash_cmd} -f ${logstash_config} -t
+}
+
+logstash_gracefulstop()
+{
+        echo "Performing a graceful stop:"
+        sig_stop="QUIT"
+        run_rc_command ${rc_prefix}stop $rc_extra_args || return 1
+}
+
+logstash_precmd()
+{
+        logstash_checkjava || return 1
+        logstash_checkconfig
+}
+
+run_rc_command "$1"
