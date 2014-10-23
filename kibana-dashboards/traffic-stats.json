@@ -4,7 +4,7 @@
     "query": {
       "list": {
         "0": {
-          "query": "host.raw:\"172.22.8.1\"",
+          "query": "host.raw:\"1.1.1.1\"",
           "alias": "EVENTS",
           "color": "#E24D42",
           "id": 0,
@@ -82,7 +82,7 @@
         "1": {
           "type": "field",
           "field": "host",
-          "query": "\"172.22.8.1\"",
+          "query": "\"1.1.1.1\"",
           "mandate": "must",
           "active": true,
           "alias": "",
