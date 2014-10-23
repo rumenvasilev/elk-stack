@@ -1,0 +1,604 @@
+{
+    "index": {
+        "default": "_all", 
+        "pattern": "[logstash-]YYYY.MM.DD", 
+        "warm_fields": false, 
+        "interval": "none"
+    }, 
+    "style": "light", 
+    "rows": [
+        {
+            "notice": false, 
+            "panels": [
+                {
+                    "show_query": true, 
+                    "bars": false, 
+                    "interval": "1m", 
+                    "zoomlinks": true, 
+                    "annotate": {
+                        "sort": [
+                            "_score", 
+                            "desc"
+                        ], 
+                        "query": "*", 
+                        "enable": false, 
+                        "field": "_type", 
+                        "size": 20
+                    }, 
+                    "intervals": [
+                        "auto", 
+                        "1s", 
+                        "1m", 
+                        "5m", 
+                        "10m", 
+                        "30m", 
+                        "1h", 
+                        "3h", 
+                        "12h", 
+                        "1d", 
+                        "1w", 
+                        "1y"
+                    ], 
+                    "timezone": "utc", 
+                    "spyable": true, 
+                    "linewidth": 1, 
+                    "percentage": false, 
+                    "fill": 1, 
+                    "scale": 1, 
+                    "span": 10, 
+                    "title": "events", 
+                    "tooltip": {
+                        "query_as_alias": true, 
+                        "value_type": "cumulative"
+                    }, 
+                    "legend": true, 
+                    "derivative": false, 
+                    "loadingEditor": false, 
+                    "auto_int": true, 
+                    "type": "histogram", 
+                    "value_field": null, 
+                    "x-axis": true, 
+                    "pointradius": 5, 
+                    "editable": true, 
+                    "zerofill": false, 
+                    "grid": {
+                        "max": null, 
+                        "min": 0
+                    }, 
+                    "stack": false, 
+                    "legend_counts": true, 
+                    "time_field": "@timestamp", 
+                    "y-axis": true, 
+                    "lines": true, 
+                    "y_format": "none", 
+                    "points": false, 
+                    "mode": "count", 
+                    "queries": {
+                        "mode": "selected", 
+                        "ids": [
+                            0, 
+                            1
+                        ]
+                    }, 
+                    "resolution": 150, 
+                    "options": true, 
+                    "interactive": true
+                }, 
+                {
+                    "value_name": "Value", 
+                    "style": {
+                        "font-size": "24pt"
+                    }, 
+                    "display_breakdown": "no", 
+                    "span": 2, 
+                    "format": "number", 
+                    "error": false, 
+                    "editable": true, 
+                    "field": "@timestamp", 
+                    "label_name": "Query", 
+                    "show": {
+                        "count": false, 
+                        "min": false, 
+                        "sum_of_squares": false, 
+                        "max": false, 
+                        "std_deviation": false, 
+                        "variance": false, 
+                        "total": false, 
+                        "mean": false
+                    }, 
+                    "mode": "count", 
+                    "queries": {
+                        "mode": "all", 
+                        "ids": [
+                            0, 
+                            1
+                        ]
+                    }, 
+                    "sort_reverse": false, 
+                    "spyable": true, 
+                    "loadingEditor": false, 
+                    "sort_field": "", 
+                    "type": "stats"
+                }
+            ], 
+            "collapse": false, 
+            "title": "EVENTS", 
+            "editable": true, 
+            "height": "150px", 
+            "collapsable": true
+        }, 
+        {
+            "notice": false, 
+            "panels": [
+                {
+                    "labels": true, 
+                    "tmode": "terms", 
+                    "valuefield": "", 
+                    "exclude": [], 
+                    "spyable": true, 
+                    "size": 10, 
+                    "style": {
+                        "font-size": "10pt"
+                    }, 
+                    "span": 3, 
+                    "title": "events per server", 
+                    "tilt": false, 
+                    "arrangement": "horizontal", 
+                    "field": "slb_server.raw", 
+                    "other": false, 
+                    "loadingEditor": false, 
+                    "type": "terms", 
+                    "missing": false, 
+                    "error": false, 
+                    "editable": true, 
+                    "chart": "bar", 
+                    "counter_pos": "above", 
+                    "tstat": "total", 
+                    "donut": false, 
+                    "queries": {
+                        "mode": "all", 
+                        "ids": [
+                            0, 
+                            1
+                        ]
+                    }, 
+                    "order": "count"
+                }, 
+                {
+                    "labels": true, 
+                    "tmode": "terms", 
+                    "valuefield": "", 
+                    "exclude": [], 
+                    "spyable": true, 
+                    "size": 10, 
+                    "style": {
+                        "font-size": "10pt"
+                    }, 
+                    "span": 3, 
+                    "title": "events per group", 
+                    "tilt": false, 
+                    "arrangement": "horizontal", 
+                    "field": "slb_service_group", 
+                    "other": false, 
+                    "loadingEditor": false, 
+                    "type": "terms", 
+                    "missing": false, 
+                    "error": false, 
+                    "editable": true, 
+                    "chart": "bar", 
+                    "counter_pos": "above", 
+                    "tstat": "total", 
+                    "donut": false, 
+                    "queries": {
+                        "mode": "all", 
+                        "ids": [
+                            0, 
+                            1
+                        ]
+                    }, 
+                    "order": "count"
+                }, 
+                {
+                    "labels": true, 
+                    "tmode": "terms", 
+                    "valuefield": "", 
+                    "exclude": [], 
+                    "spyable": true, 
+                    "size": 10, 
+                    "style": {
+                        "font-size": "10pt"
+                    }, 
+                    "span": 2, 
+                    "title": "status code", 
+                    "tilt": false, 
+                    "arrangement": "horizontal", 
+                    "field": "slb_server_status_code.raw", 
+                    "other": false, 
+                    "loadingEditor": false, 
+                    "type": "terms", 
+                    "missing": false, 
+                    "error": false, 
+                    "editable": true, 
+                    "chart": "pie", 
+                    "counter_pos": "above", 
+                    "tstat": "total", 
+                    "donut": false, 
+                    "queries": {
+                        "mode": "all", 
+                        "ids": [
+                            0, 
+                            1
+                        ]
+                    }, 
+                    "order": "count"
+                }, 
+                {
+                    "labels": true, 
+                    "tmode": "terms", 
+                    "valuefield": "", 
+                    "exclude": [], 
+                    "spyable": true, 
+                    "size": 10, 
+                    "style": {
+                        "font-size": "10pt"
+                    }, 
+                    "span": 1, 
+                    "title": "partition", 
+                    "tilt": false, 
+                    "arrangement": "horizontal", 
+                    "field": "partition_name.raw", 
+                    "other": false, 
+                    "loadingEditor": false, 
+                    "type": "terms", 
+                    "missing": false, 
+                    "error": false, 
+                    "editable": true, 
+                    "chart": "pie", 
+                    "counter_pos": "above", 
+                    "tstat": "total", 
+                    "donut": false, 
+                    "queries": {
+                        "mode": "all", 
+                        "ids": [
+                            0, 
+                            1
+                        ]
+                    }, 
+                    "order": "count"
+                }, 
+                {
+                    "labels": true, 
+                    "tmode": "terms", 
+                    "valuefield": "", 
+                    "exclude": [], 
+                    "spyable": true, 
+                    "size": 10, 
+                    "style": {
+                        "font-size": "10pt"
+                    }, 
+                    "span": 1, 
+                    "title": "server port", 
+                    "tilt": false, 
+                    "arrangement": "horizontal", 
+                    "field": "slb_server_port_status.raw", 
+                    "other": false, 
+                    "loadingEditor": false, 
+                    "type": "terms", 
+                    "missing": false, 
+                    "error": false, 
+                    "editable": true, 
+                    "chart": "pie", 
+                    "counter_pos": "above", 
+                    "tstat": "total", 
+                    "donut": false, 
+                    "queries": {
+                        "mode": "all", 
+                        "ids": [
+                            0, 
+                            1
+                        ]
+                    }, 
+                    "order": "count"
+                }
+            ], 
+            "collapse": false, 
+            "title": "DASHBOARDS", 
+            "editable": true, 
+            "height": "150px", 
+            "collapsable": true
+        }, 
+        {
+            "notice": false, 
+            "panels": [
+                {
+                    "labels": true, 
+                    "tmode": "terms", 
+                    "valuefield": "", 
+                    "exclude": [], 
+                    "spyable": true, 
+                    "size": 10, 
+                    "style": {
+                        "font-size": "10pt"
+                    }, 
+                    "span": 2, 
+                    "title": "traffic source", 
+                    "tilt": false, 
+                    "arrangement": "horizontal", 
+                    "field": "logsource.raw", 
+                    "other": false, 
+                    "loadingEditor": false, 
+                    "type": "terms", 
+                    "missing": false, 
+                    "error": false, 
+                    "editable": true, 
+                    "chart": "table", 
+                    "counter_pos": "above", 
+                    "tstat": "total", 
+                    "donut": false, 
+                    "queries": {
+                        "mode": "all", 
+                        "ids": [
+                            0, 
+                            1
+                        ]
+                    }, 
+                    "order": "count"
+                }, 
+                {
+                    "ago": "1d", 
+                    "style": {
+                        "font-size": "14pt"
+                    }, 
+                    "span": 2, 
+                    "reverse": false, 
+                    "title": "log trends", 
+                    "editable": true, 
+                    "arrangement": "vertical", 
+                    "queries": {
+                        "mode": "all", 
+                        "ids": [
+                            0, 
+                            1
+                        ]
+                    }, 
+                    "spyable": true, 
+                    "loadingEditor": false, 
+                    "type": "trends"
+                }, 
+                {
+                    "labels": true, 
+                    "tmode": "terms", 
+                    "valuefield": "", 
+                    "exclude": [], 
+                    "spyable": true, 
+                    "size": 10, 
+                    "style": {
+                        "font-size": "10pt"
+                    }, 
+                    "span": 3, 
+                    "title": "event", 
+                    "tilt": false, 
+                    "arrangement": "horizontal", 
+                    "field": "event", 
+                    "other": false, 
+                    "loadingEditor": false, 
+                    "type": "terms", 
+                    "missing": false, 
+                    "error": false, 
+                    "editable": true, 
+                    "chart": "pie", 
+                    "counter_pos": "above", 
+                    "tstat": "total", 
+                    "donut": false, 
+                    "queries": {
+                        "mode": "all", 
+                        "ids": [
+                            0, 
+                            1
+                        ]
+                    }, 
+                    "order": "count"
+                }
+            ], 
+            "collapse": false, 
+            "title": "CHARTS", 
+            "editable": true, 
+            "height": "150px", 
+            "collapsable": true
+        }, 
+        {
+            "notice": false, 
+            "panels": [
+                {
+                    "header": true, 
+                    "trimFactor": 300, 
+                    "spyable": true, 
+                    "field_list": true, 
+                    "size": 100, 
+                    "all_fields": false, 
+                    "style": {
+                        "font-size": "9pt"
+                    }, 
+                    "span": 12, 
+                    "title": "results", 
+                    "normTimes": true, 
+                    "loadingEditor": false, 
+                    "type": "table", 
+                    "sort": [
+                        "@timestamp", 
+                        "desc"
+                    ], 
+                    "error": false, 
+                    "editable": true, 
+                    "offset": 0, 
+                    "overflow": "min-height", 
+                    "pages": 5, 
+                    "localTime": false, 
+                    "sortable": true, 
+                    "fields": [
+                        "slb_server", 
+                        "slb_server_port", 
+                        "slb_server_port_status", 
+                        "slb_server_status_code", 
+                        "slb_service_group", 
+                        "@timestamp", 
+                        "timestamp", 
+                        "protocol"
+                    ], 
+                    "paging": true, 
+                    "queries": {
+                        "mode": "all", 
+                        "ids": [
+                            0, 
+                            1
+                        ]
+                    }, 
+                    "timeField": "@timestamp", 
+                    "highlight": []
+                }
+            ], 
+            "collapse": false, 
+            "title": "RESULTS", 
+            "editable": true, 
+            "height": "150px", 
+            "collapsable": true
+        }
+    ], 
+    "title": "BALANCERS", 
+    "failover": false, 
+    "editable": true, 
+    "refresh": false, 
+    "loader": {
+        "load_gist": false, 
+        "hide": false, 
+        "save_temp": true, 
+        "load_elasticsearch_size": 20, 
+        "load_local": false, 
+        "save_temp_ttl": "30d", 
+        "load_elasticsearch": true, 
+        "save_local": true, 
+        "save_elasticsearch": true, 
+        "save_temp_ttl_enable": true, 
+        "save_gist": false, 
+        "save_default": true
+    }, 
+    "pulldowns": [
+        {
+            "notice": false, 
+            "enable": true, 
+            "collapse": true, 
+            "remember": 10, 
+            "pinned": true, 
+            "query": "*", 
+            "type": "query", 
+            "history": [
+                "logsource.raw:\"US-A10-BALANCER-A\" OR logsource.raw:\"US-A10-BALANCER-B\"", 
+                "logsource.raw:\"NL-A10-BALANCER-A\" OR logsource.raw:\"NL-A10-BALANCER-B\"", 
+                "logsource.raw=\"US-A10-BALANCER-A\" OR logsource.raw=\"US-A10-BALANCER-B\"", 
+                "logsource.raw=\"NL-A10-BALANCER-A\" OR logsource.raw=\"NL-A10-BALANCER-B\"", 
+                "\"US-A10-BALANCER-A\" OR \"US-A10-BALANCER-B\"", 
+                "\"NL-A10-BALANCER-A\" OR \"NL-A10-BALANCER-B\"", 
+                "PCI", 
+                "\"slb_server_status_code\"=\"503\"", 
+                "\"slb_server_status_code\"=\"OK\"", 
+                "slb_server_status_code=\"OK\""
+            ]
+        }, 
+        {
+            "notice": false, 
+            "enable": true, 
+            "type": "filtering", 
+            "collapse": true
+        }
+    ], 
+    "nav": [
+        {
+            "status": "Stable", 
+            "notice": false, 
+            "enable": true, 
+            "collapse": false, 
+            "time_options": [
+                "5m", 
+                "15m", 
+                "1h", 
+                "6h", 
+                "12h", 
+                "24h", 
+                "2d", 
+                "7d", 
+                "30d"
+            ], 
+            "refresh_intervals": [
+                "5s", 
+                "10s", 
+                "30s", 
+                "1m", 
+                "5m", 
+                "15m", 
+                "30m", 
+                "1h", 
+                "2h", 
+                "1d"
+            ], 
+            "filter_id": 0, 
+            "timefield": "@timestamp", 
+            "now": true, 
+            "type": "timepicker"
+        }
+    ], 
+    "services": {
+        "filter": {
+            "list": {
+                "1": {
+                    "alias": "", 
+                    "mandate": "must", 
+                    "active": true, 
+                    "query": "_type:a10balancer", 
+                    "type": "querystring", 
+                    "id": 1
+                }, 
+                "0": {
+                    "from": "now-6h", 
+                    "to": "now", 
+                    "field": "@timestamp", 
+                    "alias": "", 
+                    "mandate": "must", 
+                    "active": true, 
+                    "type": "time", 
+                    "id": 0
+                }
+            }, 
+            "ids": [
+                0, 
+                1
+            ]
+        }, 
+        "query": {
+            "list": {
+                "1": {
+                    "enable": true, 
+                    "pin": false, 
+                    "color": "#5195CE", 
+                    "alias": "US BALANCERS", 
+                    "query": "logsource.raw:\"US-A10-BALANCER-A\" OR logsource.raw:\"US-A10-BALANCER-B\"", 
+                    "type": "lucene", 
+                    "id": 1
+                }, 
+                "0": {
+                    "enable": true, 
+                    "pin": false, 
+                    "color": "#E24D42", 
+                    "alias": "NL BALANCERS", 
+                    "query": "logsource.raw:\"NL-A10-BALANCER-A\" OR logsource.raw:\"NL-A10-BALANCER-B\"", 
+                    "type": "lucene", 
+                    "id": 0
+                }
+            }, 
+            "ids": [
+                0, 
+                1
+            ]
+        }
+    }, 
+    "panel_hints": true
+}
