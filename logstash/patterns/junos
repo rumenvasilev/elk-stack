@@ -1,0 +1,55 @@
+#JUNOS 11.4/12.1X patterns
+JUNOSHOST \b(?:[0-9A-Za-z][0-9A-Za-z-\_]{0,62})(?:\.(?:[0-9A-Za-z][0-9A-Za-z-\_]{0,62}))*(\.?|\b)
+JUNOSBASE %{CISCOTIMESTAMP:timestamp} (%{JUNOSHOST:logsource}|%{SYSLOGHOST:logsource})?(\:)? %{SYSLOGPROG}:
+
+## TRAFFIC FLOW EVENTS
+RT_FLOW_EVENT (RT_FLOW_SESSION_CREATE|RT_FLOW_SESSION_CLOSE|RT_FLOW_SESSION_DENY)
+RT_FLOW1 %{SYSLOGBASE} %{RT_FLOW_EVENT:event}: %{GREEDYDATA:close-reason}: %{IP:src-ip}/%{DATA:src-port}->%{IP:dst-ip}/%{DATA:dst-port} %{DATA:service} %{IP:nat-src-ip}/%{DATA:nat-src-port}->%{IP:nat-dst-ip}/%{DATA:nat-dst-port} %{DATA:src-nat-rule-name} %{DATA:dst-nat-rule-name} %{INT:protocol-id} %{DATA:policy-name} %{DATA:from-zone} %{DATA:to-zone} %{INT:session-id} \d+\(%{DATA:sent}\) \d+\(%{DATA:received}\) %{INT:elapsed-time} .*
+RT_FLOW2 %{SYSLOGBASE} %{RT_FLOW_EVENT:event}: session created %{IP:src-ip}/%{DATA:src-port}->%{IP:dst-ip}/%{DATA:dst-port} %{DATA:service} %{IP:nat-src-ip}/%{DATA:nat-src-port}->%{IP:nat-dst-ip}/%{DATA:nat-dst-port} %{DATA:src-nat-rule-name} %{DATA:dst-nat-rule-name} %{INT:protocol-id} %{DATA:policy-name} %{DATA:from-zone} %{DATA:to-zone} %{INT:session-id} .*
+RT_FLOW3 %{SYSLOGBASE} %{RT_FLOW_EVENT:event}: session denied %{IP:src-ip}/%{DATA:src-port}->%{IP:dst-ip}/%{DATA:dst-port} %{DATA:service} %{INT:protocol-id}\(\d\) %{DATA:policy-name} %{DATA:from-zone} %{DATA:to-zone} .*
+
+## FLOW REASSEMBLE EVENTS
+REASS_EVENT (FLOW_REASSEMBLE_FAIL|FLOW_REASSEMBLE_SUCCEED)
+REASSEMBLE %{SYSLOGBASE} %{REASS_EVENT:event}: %{GREEDYDATA:message}
+
+## VPN EVENTS 
+KMD_EVENT (KMD_VPN_UP_ALARM_USER|KMD_VPN_DOWN_ALARM_USER|KMD_PM_SA_ESTABLISHED|RT_IPSEC_BAD_SPI)
+KMD_VPN %{SYSLOGBASE} %{KMD_EVENT:event}: VPN %{DATA:vpn-name} from %{IP:peer-ip} is %{DATA:vpn-status}\.
+KMD_SA %{SYSLOGBASE} %{KMD_EVENT:event}: Local gateway: %{IP:local-ip}, Remote gateway: %{IP:peer-ip}, Local ID: %{DATA:local-id}, Remote ID: %{DATA:remote-id}, Direction: %{DATA:direction}, SPI: %{DATA:spi}, AUX-SPI: %{INT:aux-spi}, Mode: %{DATA:mode}, Type: %{GREEDYDATA:vpn-type} .*
+
+## IPSEC
+IPSECMSG [A-Za-z\s0-9\.!]+
+IPSEC_REPLAY %{SYSLOGBASE} %{DATA:event}: %{IPSECMSG:message} From %{IP:src_ip} to %{IP:dst_ip}\/%{INT:length}, %{WORD:type}, SPI %{DATA:spi_id}, SEQ %{DATA:seq_id}\.
+IPSEC_BADSPI %{SYSLOGBASE} %{DATA:event}: %{IPSECMSG:message} %{IP:peer_ip}-\>%{IP:local_ip}/([0-9])+, %{DATA:protocol}, SPI %{DATA:spi_id}, SEQ %{DATA:seq_id}\.
+
+## SYS EVENT
+RTPERF_CPU_STATUS (RTPERF_CPU_THRESHOLD_EXCEEDED|RTPERF_CPU_USAGE_OK)
+RTPERF_CPU1 %{SYSLOGBASE} %{RTPERF_CPU_STATUS:event}: %{DATA:cpu-id} CPU utilization returns to %{DATA:cpu-status}, current value=%{INT:cpu-load}
+RTPERF_CPU2 %{SYSLOGBASE} %{RTPERF_CPU_STATUS:event}: %{DATA:cpu-id} CPU utilization %{DATA:cpu-status}, current value=%{INT:cpu-load}
+
+## UI CHANGE
+UI_EVENT (UI_CFG_AUDIT_OTHER|UI_CFG_AUDIT_SET|UI_LOAD_JUNOS_DEFAULT_FILE_EVENT|UI_DBASE_LOGIN_EVENT|UI_DBASE_LOGOUT_EVENT|UI_LOAD_EVENT|UI_COMMIT|UI_COMMIT_NOT_CONFIRMED|UI_COMMIT_CONFIRMED_REMINDER)
+# UI_CFG_AUDIT_OTHER || UI_LOAD_EVENT || UI_DBASE_LOGOUT_EVENT
+UI_CFGUSER User \'%{DATA:username}\' .*
+UI_CFG1 %{SYSLOGBASE} %{UI_EVENT:event}: %{UI_CFGUSER:message}
+# UI_LOAD_JUNOS_DEFAULT_FILE_EVENT || UI_COMMIT_NOT_CONFIRMED || UI_COMMIT_CONFIRMED_REMINDER
+UI_CFG2 %{SYSLOGBASE} %{UI_EVENT:event}: %{GREEDYDATA:message}
+
+## GENERIC
+JUN_GENERIC %{SYSLOGBASE} %{DATA:event}: %{GREEDYDATA:message}
+JUN_GENERIC2 %{SYSLOGBASE} ((([A-Z])?([a-z])?)+(-)?)+(([0-9])?)+ %{DATA:event}: %{GREEDYDATA:message}
+JUN_GENERIC3 %{SYSLOGTIMESTAMP} %{SYSLOGHOST} %{SYSLOGPROG} %{DATA:event}: %{GREEDYDATA:message}
+
+# PFE_FW_SYSLOG_IP
+PFE_SYSIP %{SYSLOGTIMESTAMP:timestamp} %{SYSLOGHOST:logsource} %{SYSLOGHOST} %{DATA:event}: %{SYSLOGPROG}: %{DATA:interface}\s+%{DATA:action} %{WORD:protocol} %{IP:src-ip} %{IP:dst-ip}\s+[0-9]+\s+[0-9]+ \(%{NUMBER:packets}
+
+# IFP trace
+IFP_TRACE %{SYSLOGTIMESTAMP:timestamp} (\<([0-9])+\>)?%{SYSLOGHOST:logsource} %{SYSLOGHOST} %{DATA:program} trace\> %{DATA:event}: %{GREEDYDATA:message}
+
+### /kernel messages
+# KERN_ARP_ADDR_CHANGE
+KERN_MSG %{DATA:event}: %{GREEDYDATA:message}
+
+## IDS
+IDSMSG ((Large ICMP packet!)|(TCP sweep!)|(UDP sweep!))
+IDS_EVENT %{SYSLOGBASE} %{DATA:event}: %{IDSMSG:message} source: %{IP:src_ip}(:%{INT:src_port})?, destination: %{IP:dst_ip}(:%{INT:dst_port})?, zone name: %{DATA:src_zone}, interface name: %{DATA:src_if}, action: %{WORD:action}
