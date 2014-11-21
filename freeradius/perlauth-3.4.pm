@@ -299,7 +299,7 @@ sub VerifyADUser # this goes to post_auth();
 	## PLEASE DEFINE THE REALM!!! EITHER SOF, EITHER LON
 	switch ($param) {
 		case 1 {	# request vlan
-			if ($search =~ "moneybookers") { return "HOST"; }
+			if ($search =~ "ldapserver") { return "HOST"; }
 			else {
 				my $vlanad = &ldapcheck($realm, $search, 1); # Get the VLAN from AD
 				&radiusd::radlog(1,"802.1x - Search phrase is $search");
