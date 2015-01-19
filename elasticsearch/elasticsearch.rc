@@ -1,0 +1,45 @@
+#!/bin/sh
+#
+# $FreeBSD: release/10.0.0/usr/local/etc/rc.d/elasticsearch 258121 2015-01-14 13:14:33Z rumba $
+#
+
+#
+# PROVIDE: elasticsearch
+# REQUIRE: LOGIN cleanvar
+# KEYWORDS: shutdown
+
+. /etc/rc.subr
+
+name="elasticsearch"
+rcvar="elasticsearch_enable"
+pidfile="/var/run/elasticsearch.pid"
+program_path="/opt/elasticsearch"
+config_path="${program_path}/config"
+command="${program_path}/bin/${name}"
+required_files="${config_path}/${name}.yml"
+start_precmd="elasticsearch_precmd"
+#extra_commands="reload"
+command_args="-d -p ${pidfile}"
+
+java_home="/usr/local/openjdk7"
+procname="${java_home}/bin/java"
+memory="4g"
+
+elasticsearch_precmd() {
+
+   if [ -z ${java_home} ] ; then
+       echo "JAVA path incorrect. Exiting..."
+       return 1
+   else
+       JAVA_HOME="${java_home}"
+       export JAVA_HOME
+       ES_MIN_MEM=${memory}
+       ES_MAX_MEM=${memory}
+       export ES_MIN_MEM
+       export ES_MAX_MEM
+   fi
+
+}
+
+load_rc_config $name
+run_rc_command "$1"
