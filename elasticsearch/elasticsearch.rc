@@ -45,7 +45,7 @@ command_args="-d -p ${pidfile}"
 
 java_home="${elasticsearch_java}"
 procname="${java_home}/bin/java"
-memory="4g"
+memory="${elasticsearch_memory}"
 
 elasticsearch_precmd() {
 
