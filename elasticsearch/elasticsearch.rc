@@ -32,9 +32,9 @@ elasticsearch_precmd() {
        return 1
    else
        JAVA_HOME="${java_home}"
-       export JAVA_HOME
        ES_MIN_MEM=${memory}
        ES_MAX_MEM=${memory}
+       export JAVA_HOME
        export ES_MIN_MEM
        export ES_MAX_MEM
    fi
