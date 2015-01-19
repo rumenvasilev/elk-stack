@@ -8,12 +8,34 @@
 # REQUIRE: LOGIN cleanvar
 # KEYWORDS: shutdown
 
+#
+# Add the following lines to rc.conf to enable elasticsearch:
+# elasticsearch_enable:     Set to "NO" by default.
+#                           Set to "YES" to enable elasticsearch
+#
+# elasticsearch_home:       Configure full path to elasticsearch dir.
+# Default is set to "/opt/elasticsearch"
+#
+# elasticsearch_memory:     Set memory size of the application.
+#                           The default is 512m for both min and max.
+#                           To set it to other value enter "1g" for 1 gigabyte or more.
+#
+# elasticsearch_java:       Set to java path. The default is "/usr/local/openjdk7".
+
 . /etc/rc.subr
 
 name="elasticsearch"
 rcvar="elasticsearch_enable"
+
+load_rc_config ${name}
+
+: ${elasticsearch_enable="NO"}
+: ${elasticsearch_home="/opt/elasticsearch"}
+: ${elasticsearch_memory="512m"}
+: ${elasticsearch_java="/usr/local/openjdk7"}
+
 pidfile="/var/run/elasticsearch.pid"
-program_path="/opt/elasticsearch"
+program_path="${elasticsearch_home}"
 config_path="${program_path}/config"
 command="${program_path}/bin/${name}"
 required_files="${config_path}/${name}.yml"
@@ -21,7 +43,7 @@ start_precmd="elasticsearch_precmd"
 #extra_commands="reload"
 command_args="-d -p ${pidfile}"
 
-java_home="/usr/local/openjdk7"
+java_home="${elasticsearch_java}"
 procname="${java_home}/bin/java"
 memory="4g"
 
