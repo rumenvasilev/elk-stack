@@ -1,0 +1,419 @@
+{
+    "order" : 0,
+    "template" : "firewall-*",
+    "settings" : {
+      "index.translog.flush_threshold_size" : "500mb",
+      "index.merge.policy.merge_factor" : "30",
+      "index.refresh_interval" : "30s",
+      "index.number_of_replicas" : "0",
+      "index.number_of_shards" : "1",
+      "index.translog.flush_threshold_period" : "60s",
+      "index.translog.flush_threshold_ops" : "5000"
+    },
+    "mappings" : {
+      "_default_" : {
+        "dynamic_templates" : [ {
+          "string_fields" : {
+            "mapping" : {
+              "index" : "analyzed",
+              "omit_norms" : true,
+              "type" : "string",
+              "fields" : {
+                "raw" : {
+                  "index" : "not_analyzed",
+                  "ignore_above" : 256,
+                  "type" : "string"
+                }
+              }
+            },
+            "match_mapping_type" : "string",
+            "match" : "*"
+          }
+        } ],
+        "properties" : {
+          "logsource" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "rem_port" : {
+            "index" : "not_analyzed",
+            "type" : "integer"
+          },
+          "dst_ip" : {
+            "type" : "multi_field",
+            "fields" : {
+              "dst_ip_facet" : {
+                "index" : "not_analyzed",
+                "type" : "string"
+              },
+              "dst_ip" : {
+                "type" : "ip"
+              }
+            }
+          },
+          "loc_ip" : {
+            "type" : "multi_field",
+            "fields" : {
+              "loc_ip" : {
+                "type" : "ip"
+              },
+              "loc_ip_facet" : {
+                "index" : "not_analyzed",
+                "type" : "string"
+              }
+            }
+          },
+          "rem_ip" : {
+            "type" : "multi_field",
+            "fields" : {
+              "rem_ip" : {
+                "type" : "ip"
+              },
+              "rem_ip_facet" : {
+                "index" : "not_analyzed",
+                "type" : "string"
+              }
+            }
+          },
+          "type" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "src_port" : {
+            "index" : "not_analyzed",
+            "type" : "integer"
+          },
+          "sent" : {
+            "index" : "not_analyzed",
+            "type" : "long"
+          },
+          "username" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "event" : {
+            "index" : "not_analyzed",
+            "type" : "string"
+          },
+          "nat_src_port" : {
+            "index" : "not_analyzed",
+            "type" : "integer"
+          },
+          "action" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "role" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "req_type" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "rcvd" : {
+            "index" : "not_analyzed",
+            "type" : "long"
+          },
+          "tran_sport" : {
+            "index" : "not_analyzed",
+            "type" : "integer"
+          },
+          "vpn_tunnel" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "host" : {
+            "type" : "multi_field",
+            "fields" : {
+              "host" : {
+                "type" : "ip"
+              },
+              "host_facet" : {
+                "index" : "not_analyzed",
+                "type" : "string"
+              }
+            }
+          },
+          "profilegroup" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "status" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "class" : {
+            "index" : "not_analyzed",
+            "type" : "integer"
+          },
+          "init" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "hostname" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "nat_dst_port" : {
+            "index" : "not_analyzed",
+            "type" : "integer"
+          },
+          "intf_policyid" : {
+            "index" : "not_analyzed",
+            "type" : "integer"
+          },
+          "msg" : {
+            "index" : "analyzed",
+            "type" : "string"
+          },
+          "url" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "profiletype" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "dst_country" : {
+            "index" : "analyzed",
+            "type" : "string"
+          },
+          "from_zone" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "xauth_user" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "dst_int" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "program" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "carrier_ep" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "subtype" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "src_country" : {
+            "index" : "analyzed",
+            "type" : "string"
+          },
+          "src_ip" : {
+            "type" : "multi_field",
+            "fields" : {
+              "src_ip_facet" : {
+                "index" : "not_analyzed",
+                "type" : "string"
+              },
+              "src_ip" : {
+                "type" : "ip"
+              }
+            }
+          },
+          "result" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "cat" : {
+            "index" : "not_analyzed",
+            "type" : "integer"
+          },
+          "session_id" : {
+            "index" : "not_analyzed",
+            "type" : "integer"
+          },
+          "tran_sip" : {
+            "type" : "multi_field",
+            "fields" : {
+              "tran_sip" : {
+                "type" : "ip"
+              },
+              "tran_sip_facet" : {
+                "index" : "not_analyzed",
+                "type" : "string"
+              }
+            }
+          },
+          "src_nat_rule_name" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "dst_port" : {
+            "index" : "not_analyzed",
+            "type" : "integer"
+          },
+          "src_int" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "@version" : {
+            "index" : "not_analyzed",
+            "type" : "string"
+          },
+          "stage" : {
+            "index" : "not_analyzed",
+            "type" : "integer"
+          },
+          "cat_desc" : {
+            "index" : "analyzed",
+            "type" : "string"
+          },
+          "loc_port" : {
+            "index" : "not_analyzed",
+            "type" : "integer"
+          },
+          "mode" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "class_desc" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "dir" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "to_zone" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "vd" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "cookies" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "log_id" : {
+            "index" : "not_analyzed",
+            "type" : "integer"
+          },
+          "profile" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "nat_src_ip" : {
+            "type" : "multi_field",
+            "fields" : {
+              "nat_src_ip" : {
+                "type" : "ip"
+              },
+              "nat_src_ip_facet" : {
+                "index" : "not_analyzed",
+                "type" : "string"
+              }
+            }
+          },
+          "nat_dst_ip" : {
+            "type" : "multi_field",
+            "fields" : {
+              "nat_dst_ip_facet" : {
+                "index" : "not_analyzed",
+                "type" : "string"
+              },
+              "nat_dst_ip" : {
+                "type" : "ip"
+              }
+            }
+          },
+          "devname" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "SN" : {
+            "index" : "not_analyzed",
+            "type" : "long"
+          },
+          "device_id" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "geoip" : {
+            "dynamic" : true,
+            "path" : "full",
+            "properties" : {
+              "location" : {
+                "type" : "geo_point"
+              }
+            },
+            "type" : "object"
+          },
+          "proto" : {
+            "index" : "not_analyzed",
+            "type" : "integer"
+          },
+          "protocol_id" : {
+            "index" : "not_analyzed",
+            "type" : "integer"
+          },
+          "out_intf" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "duration" : {
+            "index" : "not_analyzed",
+            "type" : "long"
+          },
+          "pri" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "service" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "identidx" : {
+            "index" : "not_analyzed",
+            "type" : "integer"
+          },
+          "dst_nat_rule_name" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "policy_name" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "method" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "xauth_group" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "group" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "serial" : {
+            "index" : "not_analyzed",
+            "type" : "long"
+          },
+          "user" : {
+            "analyzer" : "whitespace",
+            "type" : "string"
+          },
+          "policyid" : {
+            "index" : "not_analyzed",
+            "type" : "integer"
+          }
+        },
+        "_all" : {
+          "enabled" : false
+        }
+      }
+    },
+    "aliases" : { }
+}

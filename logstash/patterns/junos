@@ -4,52 +4,88 @@ JUNOSBASE %{CISCOTIMESTAMP:timestamp} (%{JUNOSHOST:logsource}|%{SYSLOGHOST:logso
 
 ## TRAFFIC FLOW EVENTS
 RT_FLOW_EVENT (RT_FLOW_SESSION_CREATE|RT_FLOW_SESSION_CLOSE|RT_FLOW_SESSION_DENY)
-RT_FLOW1 %{SYSLOGBASE} %{RT_FLOW_EVENT:event}: %{GREEDYDATA:close-reason}: %{IP:src-ip}/%{DATA:src-port}->%{IP:dst-ip}/%{DATA:dst-port} %{DATA:service} %{IP:nat-src-ip}/%{DATA:nat-src-port}->%{IP:nat-dst-ip}/%{DATA:nat-dst-port} %{DATA:src-nat-rule-name} %{DATA:dst-nat-rule-name} %{INT:protocol-id} %{DATA:policy-name} %{DATA:from-zone} %{DATA:to-zone} %{INT:session-id} \d+\(%{DATA:sent}\) \d+\(%{DATA:received}\) %{INT:elapsed-time} .*
-RT_FLOW2 %{SYSLOGBASE} %{RT_FLOW_EVENT:event}: session created %{IP:src-ip}/%{DATA:src-port}->%{IP:dst-ip}/%{DATA:dst-port} %{DATA:service} %{IP:nat-src-ip}/%{DATA:nat-src-port}->%{IP:nat-dst-ip}/%{DATA:nat-dst-port} %{DATA:src-nat-rule-name} %{DATA:dst-nat-rule-name} %{INT:protocol-id} %{DATA:policy-name} %{DATA:from-zone} %{DATA:to-zone} %{INT:session-id} .*
-RT_FLOW3 %{SYSLOGBASE} %{RT_FLOW_EVENT:event}: session denied %{IP:src-ip}/%{DATA:src-port}->%{IP:dst-ip}/%{DATA:dst-port} %{DATA:service} %{INT:protocol-id}\(\d\) %{DATA:policy-name} %{DATA:from-zone} %{DATA:to-zone} .*
+RT_FLOW1 %{RT_FLOW_EVENT:event}: %{GREEDYDATA:close_reason}: %{IP:src_ip}/%{INT:src_port:int}->%{IP:dst_ip}/%{INT:dst_port:int} %{DATA:service} %{IP:nat_src_ip}/%{DATA:nat_src_port:int}->%{IP:nat_dst_ip}/%{DATA:nat_dst_port:int} %{DATA:src_nat_rule_name} %{DATA:dst_nat_rule_name} %{INT:protocol_id:int} %{DATA:policy_name} %{DATA:from_zone} %{DATA:to_zone} %{INT:session_id:int} \d+\(%{INT:sent:int}\) \d+\(%{INT:received:int}\) %{INT:elapsed_time:int}
+RT_FLOW2 %{RT_FLOW_EVENT:event}: session created %{IP:src_ip}/%{INT:src_port:int}->%{IP:dst_ip}/%{INT:dst_port:int} %{DATA:service} %{IP:nat_src_ip}/%{INT:nat_src_port:int}->%{IP:nat_dst_ip}/%{INT:nat_dst_port:int} %{DATA:src_nat_rule_name} %{DATA:dst_nat_rule_name} %{INT:protocol_id:int} %{DATA:policy_name} %{DATA:from_zone} %{DATA:to_zone} %{INT:session_id:int}
+RT_FLOW3 %{RT_FLOW_EVENT:event}: session denied %{IP:src_ip}/%{INT:src_port:int}->%{IP:dst_ip}/%{INT:dst_port:int} %{DATA:service} %{INT:protocol_id:int}\(\d\) %{DATA:policy_name} %{DATA:from_zone} %{DATA:to_zone}
 
-## FLOW REASSEMBLE EVENTS
-REASS_EVENT (FLOW_REASSEMBLE_FAIL|FLOW_REASSEMBLE_SUCCEED)
-REASSEMBLE %{SYSLOGBASE} %{REASS_EVENT:event}: %{GREEDYDATA:message}
+## SIMPLE PARSER
+JUNOS_SIMPLE %{DATA:event}: %{GREEDYDATA:message}
 
 ## VPN EVENTS 
-KMD_EVENT (KMD_VPN_UP_ALARM_USER|KMD_VPN_DOWN_ALARM_USER|KMD_PM_SA_ESTABLISHED|RT_IPSEC_BAD_SPI)
-KMD_VPN %{SYSLOGBASE} %{KMD_EVENT:event}: VPN %{DATA:vpn-name} from %{IP:peer-ip} is %{DATA:vpn-status}\.
-KMD_SA %{SYSLOGBASE} %{KMD_EVENT:event}: Local gateway: %{IP:local-ip}, Remote gateway: %{IP:peer-ip}, Local ID: %{DATA:local-id}, Remote ID: %{DATA:remote-id}, Direction: %{DATA:direction}, SPI: %{DATA:spi}, AUX-SPI: %{INT:aux-spi}, Mode: %{DATA:mode}, Type: %{GREEDYDATA:vpn-type} .*
+KMD_EVENT (KMD_VPN_UP_ALARM_USER|KMD_VPN_DOWN_ALARM_USER)
+KMD_EVENT2 KMD_PM_SA_ESTABLISHED
+KMD_VPN %{KMD_EVENT:event}: %{KMD_VPNMSG:message}
+KMD_VPNMSG VPN %{DATA:vpn_name} from %{IP:peer_ip} is %{DATA:vpn_status}\.
+n_status}\.
+KMD_SA %{KMD_EVENT2:event}: %{KMD_SAMSG:message}
+KMD_SAMSG Local gateway: %{IP:local_ip}, Remote gateway: %{IP:peer_ip}, Local ID: %{DATA:local_id}, Remote ID: %{DATA:remote_id}, Direction: %{WORD:direction}, SPI: %{DATA:spi}, AUX-SPI: %{INT:aux_spi:int}, Mode: %{WORD:mode}, Type: %{WORD:tun_type}
+
+## DYNAMIC VPN
+DVPNIKEID_USER ([a-z]+\.?)+\-[a-z]+
+DVPNIKEID_HASH [a-z0-9]+
+DVPNIKEID (%{DVPNIKEID_USER}|%{DVPNIKEID_HASH})
+
+DVPNDEL Connection manager receives delete request from the client for user %{USER:username} ike-id %{DVPNIKEID:ike_id}
+DVPNSA Connection manager receives SA [a-z]+ notification for ike-id %{DVPNIKEID:ike_id}
+DVPNLIC Server successfully got an Access Manager license for %{USER:username}
+DVPNAOK token %{DVPNIKEID:token} with client identifier %{DVPNIKEID:client_id} .*
+
+JUN_DVPNDEL %{DATA:event}: %{DVPNDEL:message}
+JUN_DVPNSA %{DATA:event}: %{DVPNSA:message}
+JUN_DVPNLIC %{DATA:event}: %{DVPNLIC:message}
+JUN_DVPNAOK %{DATA:event}: %{DVPNAOK:message}
 
 ## IPSEC
 IPSECMSG [A-Za-z\s0-9\.!]+
-IPSEC_REPLAY %{SYSLOGBASE} %{DATA:event}: %{IPSECMSG:message} From %{IP:src_ip} to %{IP:dst_ip}\/%{INT:length}, %{WORD:type}, SPI %{DATA:spi_id}, SEQ %{DATA:seq_id}\.
-IPSEC_BADSPI %{SYSLOGBASE} %{DATA:event}: %{IPSECMSG:message} %{IP:peer_ip}-\>%{IP:local_ip}/([0-9])+, %{DATA:protocol}, SPI %{DATA:spi_id}, SEQ %{DATA:seq_id}\.
+IPSEC_REPLAY %{DATA:event}: %{IPSECMSG:message} From %{IP:src_ip} to %{IP:dst_ip}\/%{INT:length}, %{WORD:protocol}, SPI %{DATA:spi_id}, SEQ %{DATA:seq_id}\.
+IPSEC_BADSPI %{DATA:event}: %{IPSECMSG:message} %{IP:peer_ip}-\>%{IP:local_ip}/([0-9])+, %{DATA:protocol}, SPI %{DATA:spi_id}, SEQ %{DATA:seq_id}\.
 
 ## SYS EVENT
-RTPERF_CPU_STATUS (RTPERF_CPU_THRESHOLD_EXCEEDED|RTPERF_CPU_USAGE_OK)
-RTPERF_CPU1 %{SYSLOGBASE} %{RTPERF_CPU_STATUS:event}: %{DATA:cpu-id} CPU utilization returns to %{DATA:cpu-status}, current value=%{INT:cpu-load}
-RTPERF_CPU2 %{SYSLOGBASE} %{RTPERF_CPU_STATUS:event}: %{DATA:cpu-id} CPU utilization %{DATA:cpu-status}, current value=%{INT:cpu-load}
+RTPERF_CPU (RTPERF_CPU_THRESHOLD_EXCEEDED|RTPERF_CPU_USAGE_OK)
+RTPERF_MSG %{DATA:cpu_id} CPU utilization( returns to)? %{WORD:cpu_status}, current value=%{INT:cpu_load:int}
+RTPERF_EVENT %{RTPERF_CPU:event}: %{RTPERF_MSG:message}
 
 ## UI CHANGE
-UI_EVENT (UI_CFG_AUDIT_OTHER|UI_CFG_AUDIT_SET|UI_LOAD_JUNOS_DEFAULT_FILE_EVENT|UI_DBASE_LOGIN_EVENT|UI_DBASE_LOGOUT_EVENT|UI_LOAD_EVENT|UI_COMMIT|UI_COMMIT_NOT_CONFIRMED|UI_COMMIT_CONFIRMED_REMINDER)
+UI_EVENT (UI_CFG_AUDIT_OTHER|UI_CFG_AUDIT_SET|UI_LOAD_JUNOS_DEFAULT_FILE_EVENT|UI_DBASE_LOGIN_EVENT|UI_DBASE_LOGOUT_EVENT|UI_LOAD_EVENT|UI_COMMIT|UI_COMMIT_NOT_CONFIRMED|UI_COMMIT_CONFIRMED_REMINDER|UI_CFG_AUDIT_NEW)
 # UI_CFG_AUDIT_OTHER || UI_LOAD_EVENT || UI_DBASE_LOGOUT_EVENT
 UI_CFGUSER User \'%{DATA:username}\' .*
-UI_CFG1 %{SYSLOGBASE} %{UI_EVENT:event}: %{UI_CFGUSER:message}
+UI_CFG1 %{UI_EVENT:event}: %{UI_CFGUSER:message}
 # UI_LOAD_JUNOS_DEFAULT_FILE_EVENT || UI_COMMIT_NOT_CONFIRMED || UI_COMMIT_CONFIRMED_REMINDER
-UI_CFG2 %{SYSLOGBASE} %{UI_EVENT:event}: %{GREEDYDATA:message}
+UI_CFG2 %{UI_EVENT:event}: %{GREEDYDATA:message}
 
 ## GENERIC
 JUN_GENERIC %{SYSLOGBASE} %{DATA:event}: %{GREEDYDATA:message}
 JUN_GENERIC2 %{SYSLOGBASE} ((([A-Z])?([a-z])?)+(-)?)+(([0-9])?)+ %{DATA:event}: %{GREEDYDATA:message}
 JUN_GENERIC3 %{SYSLOGTIMESTAMP} %{SYSLOGHOST} %{SYSLOGPROG} %{DATA:event}: %{GREEDYDATA:message}
+JUN_GENERICALL %{SYSLOGBASE} %{GREEDYDATA:message}
 
 # PFE_FW_SYSLOG_IP
-PFE_SYSIP %{SYSLOGTIMESTAMP:timestamp} %{SYSLOGHOST:logsource} %{SYSLOGHOST} %{DATA:event}: %{SYSLOGPROG}: %{DATA:interface}\s+%{DATA:action} %{WORD:protocol} %{IP:src-ip} %{IP:dst-ip}\s+[0-9]+\s+[0-9]+ \(%{NUMBER:packets}
+PFE_SYSIP %{SYSLOGTIMESTAMP:timestamp} %{SYSLOGHOST:logsource} %{SYSLOGHOST} %{DATA:event}: %{SYSLOGPROG}: %{DATA:interface}\s+%{DATA:action} %{WORD:protocol} %{IP:src_ip} %{IP:dst_ip}\s+[0-9]+\s+[0-9]+ \(%{NUMBER:packets}
 
 # IFP trace
 IFP_TRACE %{SYSLOGTIMESTAMP:timestamp} (\<([0-9])+\>)?%{SYSLOGHOST:logsource} %{SYSLOGHOST} %{DATA:program} trace\> %{DATA:event}: %{GREEDYDATA:message}
 
-### /kernel messages
-# KERN_ARP_ADDR_CHANGE
-KERN_MSG %{DATA:event}: %{GREEDYDATA:message}
-
 ## IDS
 IDSMSG ((Large ICMP packet!)|(TCP sweep!)|(UDP sweep!))
-IDS_EVENT %{SYSLOGBASE} %{DATA:event}: %{IDSMSG:message} source: %{IP:src_ip}(:%{INT:src_port})?, destination: %{IP:dst_ip}(:%{INT:dst_port})?, zone name: %{DATA:src_zone}, interface name: %{DATA:src_if}, action: %{WORD:action}
+IDS_EVENT %{DATA:event}: %{IDSMSG:message} source: %{IP:src_ip}(:%{INT:src_port})?, destination: %{IP:dst_ip}(:%{INT:dst_port})?, zone name: %{DATA:src_zone}, interface name: %{DATA:src_if}, action: %{WORD:action}
+
+
+## 
+DATESTAMP_JUNIPER %{DAY} %{MONTH} %{MONTHDAY} %{YEAR} %{TIME}
+IKEPROXYID [a-z0-9\_]+\([a-z0-9:,\.=\/\[\]]+\)
+IKEEVENT IKE Phase-%{INT:ike_phase}
+SAHASH ([a-z0-9]+\s){2}\-(\s[a-z0-9]+){2}
+
+IKEMSG1 %{IKEEVENT:event}: \(%{WORD:role}\) The symmetric crypto key has been generated successfully
+IKEMSG1IP \[local_ip=%{IP:local_ip}, local_port=%{INT:local_port}, remote_ip=%{IP:remote_ip}, remote_port=%{INT:remote_port}
+
+IKEMSG2 %{IKEEVENT:event}: Negotiation completed\; SA expires on %{DATESTAMP_JUNIPER:sa_expire} \{ %{SAHASH} \}
+IKEMSG2IP \[local_id=%{IPORHOST:local_id}, local_ip=%{IP:local_ip}, local_port=%{INT:local_port}, remote_id=%{IPORHOST:remote_id}, remote_ip=%{IP:remote_ip}, remote_port=%{INT:remote_port}, Exchange Mode:%{WORD:mode}\]
+
+IKEMSG3 %{IKEEVENT:event}: Completed negotiations, connection established with tunnel-ID\:%{INT:tun_id} and lifetime %{INT:lifetime_sec} seconds/%{INT:lifetyme_kbytes} KB
+IKEMSG3IP Local gateway: %{IP:src_ip}, Remote gateway: %{IP:dst_ip}, Local Proxy ID: %{IKEPROXYID:local_id}, Remote Proxy ID: %{IKEPROXYID:remote_id}, Protocol: %{WORD:protocol}, Auth algo: %{DATA:auth_alg}, Encryption algo: %{DATA:encr_alg}, Direction: %{WORD:direction}, SPI: %{DATA:spi}, AUX-SPI: %{INT:aux_spi}, Type: %{WORD:tun_type}
+
+IKEMSG4 %{IKEEVENT:event}: \(%{WORD:role}\) Negotiation initiated
+IKEMSG4IP \[local_ip=%{IP:src_ip}, remote_ip=%{IP:dst_ip}\]
+
+IKEMSG5 %{IKEEVENT:event}: Responder starts negotiations\{ %{SAHASH} \}
