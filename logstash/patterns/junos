@@ -60,10 +60,10 @@ JUN_GENERIC3 %{SYSLOGTIMESTAMP} %{SYSLOGHOST} %{SYSLOGPROG} %{DATA:event}: %{GRE
 JUN_GENERICALL %{SYSLOGBASE} %{GREEDYDATA:message}
 
 # PFE_FW_SYSLOG_IP
-PFE_SYSIP %{SYSLOGTIMESTAMP:timestamp} %{SYSLOGHOST:logsource} %{SYSLOGHOST} %{DATA:event}: %{SYSLOGPROG}: %{DATA:interface}\s+%{DATA:action} %{WORD:protocol} %{IP:src_ip} %{IP:dst_ip}\s+[0-9]+\s+[0-9]+ \(%{NUMBER:packets}
+PFE_SYSIP %{DATA:event}: %{SYSLOGPROG}: %{DATA:interface}\s+%{DATA:action} %{WORD:protocol} %{IP:src_ip} %{IP:dst_ip}\s+[0-9]+\s+[0-9]+ \(%{NUMBER:packets}
 
 # IFP trace
-IFP_TRACE %{SYSLOGTIMESTAMP:timestamp} (\<([0-9])+\>)?%{SYSLOGHOST:logsource} %{SYSLOGHOST} %{DATA:program} trace\> %{DATA:event}: %{GREEDYDATA:message}
+#IFP_TRACE %{SYSLOGTIMESTAMP:timestamp} (\<([0-9])+\>)?%{SYSLOGHOST:logsource} %{SYSLOGHOST} %{DATA:program} trace\> %{DATA:event}: %{GREEDYDATA:message}
 
 ## IDS
 IDSMSG ((Large ICMP packet!)|(TCP sweep!)|(UDP sweep!))
