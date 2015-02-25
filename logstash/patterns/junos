@@ -2,6 +2,8 @@
 JUNOSHOST \b(?:[0-9A-Za-z][0-9A-Za-z-\_]{0,62})(?:\.(?:[0-9A-Za-z][0-9A-Za-z-\_]{0,62}))*(\.?|\b)
 JUNOSBASE %{CISCOTIMESTAMP:timestamp} (%{JUNOSHOST:logsource}|%{SYSLOGHOST:logsource})?(\:)? %{SYSLOGPROG}:
 
+INTERFACE ([a-zA-Z0-9]+[\.\-\/]?)+
+
 ## TRAFFIC FLOW EVENTS
 RT_FLOW_EVENT (RT_FLOW_SESSION_CREATE|RT_FLOW_SESSION_CLOSE|RT_FLOW_SESSION_DENY)
 RT_FLOW1 %{RT_FLOW_EVENT:event}: %{GREEDYDATA:close_reason}: %{IP:src_ip}/%{INT:src_port:int}->%{IP:dst_ip}/%{INT:dst_port:int} %{DATA:service} %{IP:nat_src_ip}/%{DATA:nat_src_port:int}->%{IP:nat_dst_ip}/%{DATA:nat_dst_port:int} %{DATA:src_nat_rule_name} %{DATA:dst_nat_rule_name} %{INT:protocol_id:int} %{DATA:policy_name} %{DATA:from_zone} %{DATA:to_zone} %{INT:session_id:int} \d+\(%{INT:sent:int}\) \d+\(%{INT:received:int}\) %{INT:elapsed_time:int}
@@ -9,7 +11,10 @@ RT_FLOW2 %{RT_FLOW_EVENT:event}: session created %{IP:src_ip}/%{INT:src_port:int
 RT_FLOW3 %{RT_FLOW_EVENT:event}: session denied %{IP:src_ip}/%{INT:src_port:int}->%{IP:dst_ip}/%{INT:dst_port:int} %{DATA:service} %{INT:protocol_id:int}\(\d\) %{DATA:policy_name} %{DATA:from_zone} %{DATA:to_zone}
 
 ## SIMPLE PARSER
-JUNOS_SIMPLE %{DATA:event}: %{GREEDYDATA:message}
+JUNOS_SIMPLE %{SYSLOGTIMESTAMP:timestamp} %{SYSLOGHOST:logsource} %{SYSLOGHOST} %{GREEDYDATA:message}
+JUNOS_SIMPLE2 %{SYSLOGTIMESTAMP:timestamp} %{SYSLOGHOST:logsource} %{SYSLOGHOST} %{DATA:event}: %{GREEDYDATA:message}
+JUNOS_SIMPLE3 %{WORD:event}: %{GREEDYDATA:message}
+JUNOS_SIMPLE4 %{GREEDYDATA:message}
 
 ## VPN EVENTS 
 KMD_EVENT (KMD_VPN_UP_ALARM_USER|KMD_VPN_DOWN_ALARM_USER)
@@ -54,16 +59,11 @@ UI_CFG1 %{UI_EVENT:event}: %{UI_CFGUSER:message}
 UI_CFG2 %{UI_EVENT:event}: %{GREEDYDATA:message}
 
 ## GENERIC
-JUN_GENERIC %{SYSLOGBASE} %{DATA:event}: %{GREEDYDATA:message}
 JUN_GENERIC2 %{SYSLOGBASE} ((([A-Z])?([a-z])?)+(-)?)+(([0-9])?)+ %{DATA:event}: %{GREEDYDATA:message}
-JUN_GENERIC3 %{SYSLOGTIMESTAMP} %{SYSLOGHOST} %{SYSLOGPROG} %{DATA:event}: %{GREEDYDATA:message}
-JUN_GENERICALL %{SYSLOGBASE} %{GREEDYDATA:message}
 
 # PFE_FW_SYSLOG_IP
-PFE_SYSIP %{DATA:event}: %{SYSLOGPROG}: %{DATA:interface}\s+%{DATA:action} %{WORD:protocol} %{IP:src_ip} %{IP:dst_ip}\s+[0-9]+\s+[0-9]+ \(%{NUMBER:packets}
-
-# IFP trace
-#IFP_TRACE %{SYSLOGTIMESTAMP:timestamp} (\<([0-9])+\>)?%{SYSLOGHOST:logsource} %{SYSLOGHOST} %{DATA:program} trace\> %{DATA:event}: %{GREEDYDATA:message}
+PFE_SYSIP %{SYSLOGTIMESTAMP:timestamp} %{SYSLOGHOST:logsource} %{SYSLOGHOST} %{DATA:event}: %{SYSLOGPROG}: %{PFE_SYSIPMSG}
+PFE_SYSIPMSG %{INTERFACE:interface}\s+%{DATA:action} %{WORD:protocol} %{IP:src_ip} %{IP:dst_ip}\s+\d+\s+\d+ \(%{INT:packets:int}.*
 
 ## IDS
 IDSMSG ((Large ICMP packet!)|(TCP sweep!)|(UDP sweep!))
