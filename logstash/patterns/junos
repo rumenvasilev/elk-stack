@@ -41,9 +41,9 @@ JUN_DVPNLIC %{DATA:event}: %{DVPNLIC:message}
 JUN_DVPNAOK %{DATA:event}: %{DVPNAOK:message}
 
 ## IPSEC
-IPSECMSG [A-Za-z\s0-9\.!]+
+IPSECMSG ([a-zA-Z]+\s)+%{INTERFACE:interface}\s([a-zA-Z]+\s)+([0-9a-z])+!
 IPSEC_REPLAY %{DATA:event}: %{IPSECMSG:message} From %{IP:src_ip} to %{IP:dst_ip}\/%{INT:length}, %{WORD:protocol}, SPI %{DATA:spi_id}, SEQ %{DATA:seq_id}\.
-IPSEC_BADSPI %{DATA:event}: %{IPSECMSG:message} %{IP:peer_ip}-\>%{IP:local_ip}/([0-9])+, %{DATA:protocol}, SPI %{DATA:spi_id}, SEQ %{DATA:seq_id}\.
+#IPSEC_BADSPI %{DATA:event}: %{IPSECMSG:message} %{IP:peer_ip}-\>%{IP:local_ip}/([0-9])+, %{DATA:protocol}, SPI %{DATA:spi_id}, SEQ %{DATA:seq_id}\.
 
 ## SYS EVENT
 RTPERF_CPU (RTPERF_CPU_THRESHOLD_EXCEEDED|RTPERF_CPU_USAGE_OK)
