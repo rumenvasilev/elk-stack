@@ -1,0 +1,14 @@
+#ACOS patterns
+A10EVENT (HMON|SYSTEM|CLI|MGMT|ACOS)
+A10STATMSG (Status Code|Receive|Wrong Status Code:|Verify Connection)
+
+A101BASEHMON \[%{A10EVENT:event}(\]\<([0-9])+\>) partition-id\<%{INT:partition_id}\>([ ]\<%{DATA:partition_name}\>)? %{A10MSGHMON:message}
+A101BASEACOS1 \[%{A10EVENT:event}(\]\<([0-9])+\>) partition-id\<%{INT:partition_id}\>([ ]\<%{DATA:partition_name}\>)? %{A10MSGACOS1:message}
+A101BASEACOS2 \[%{A10EVENT:event}(\]\<([0-9])+\>) partition-id\<%{INT:partition_id}\>([ ]\<%{DATA:partition_name}\>)? %{A10MSGACOS2:message}
+A101BASEGENERIC \[%{A10EVENT:event}(\]\<([0-9])+\>) %{GREEDYDATA:message}
+
+#HMON
+A10MSGHMON SLB %{WORD:slb_type} %{DATA:slb_server} \(%{IP:slb_server_ip}\)([ ]%{WORD:protocol})?([ ]port %{INT:slb_server_port})?([ ]of group[ ]%{WORD:slb_service_group})? is %{WORD:slb_server_port_status} \((real|%{WORD:slb_server_status_proto})?([ ]%{A10STATMSG})? %{GREEDYDATA:slb_server_status_code}\).*
+#ACOS
+A10MSGACOS1 Service %{WORD:slb_virtual_server_proto} on virtual Server %{DATA:slb_virtual_server_name} port %{INT:slb_virtual_server_port} is %{WORD:status}
+A10MSGACOS2 Virtual server %{DATA:slb_virtual_server_name} is %{WORD:status}
