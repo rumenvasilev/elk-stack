@@ -1,0 +1,54 @@
+{
+    "order" : 0,
+    "template" : "suricata-*",
+    "settings" : {
+      "index.translog.flush_threshold_size" : "500mb",
+      "index.merge.policy.merge_factor" : "30",
+      "index.refresh_interval" : "30s",
+      "index.number_of_replicas" : "0",
+      "index.translog.flush_threshold_period" : "60s",
+      "index.translog.flush_threshold_ops" : "5000"
+    },
+    "mappings" : {
+      "_default_" : {
+        "dynamic_templates" : [ {
+          "string_fields" : {
+            "mapping" : {
+              "index" : "analyzed",
+              "omit_norms" : true,
+              "type" : "string",
+              "fields" : {
+                "raw" : {
+                  "index" : "not_analyzed",
+                  "ignore_above" : 256,
+                  "type" : "string"
+                }
+              }
+            },
+            "match_mapping_type" : "string",
+            "match" : "*"
+          }
+        } ],
+        "properties" : {
+          "geoip" : {
+            "dynamic" : true,
+            "path" : "full",
+            "properties" : {
+              "location" : {
+                "type" : "geo_point"
+              }
+            },
+            "type" : "object"
+          },
+          "@version" : {
+            "index" : "not_analyzed",
+            "type" : "string"
+          }
+        },
+        "_all" : {
+          "enabled" : true
+        }
+      }
+    },
+    "aliases" : { }
+}
