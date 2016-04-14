@@ -1,11 +1,22 @@
 #ACOS patterns
-A10EVENT (HMON|SYSTEM|CLI|MGMT|ACOS)
+A10EVENT (HMON|SYSTEM|CLI|MGMT|ACOS|AFLEX)
 A10STATMSG (Status Code|Receive|Wrong Status Code:|Verify Connection)
 
+A10BASEHMON %{SYSLOGBASE} \[%{A10EVENT:event}(\]\<([0-9])+\>) partition-id\<%{INT:partition_id}\>([ ]\<%{DATA:partition_name}\>)? %{A10MSGHMON:message}
 A101BASEHMON \[%{A10EVENT:event}(\]\<([0-9])+\>) partition-id\<%{INT:partition_id}\>([ ]\<%{DATA:partition_name}\>)? %{A10MSGHMON:message}
+
+A10AFLEX1 \[%{A10EVENT:event}(\]\<([0-9])+\>) partition-id\<%{INT:partition_id}\>([ ]\<%{DATA:partition_name}\>)? %{DATA:aflex}:%{GREEDYDATA:message}
+A10AFLEX2 \<([0-9])+\> partition-id\<%{INT:partition_id}\>([ ]\<%{DATA:partition_name}\>)? %{DATA:aflex}:%{GREEDYDATA:message}
+
+A10BASEACOS1 %{SYSLOGBASE} \[%{A10EVENT:event}(\]\<([0-9])+\>) partition-id\<%{INT:partition_id}\>([ ]\<%{DATA:partition_name}\>)? %{A10MSGACOS1:message}
 A101BASEACOS1 \[%{A10EVENT:event}(\]\<([0-9])+\>) partition-id\<%{INT:partition_id}\>([ ]\<%{DATA:partition_name}\>)? %{A10MSGACOS1:message}
+
+A10BASEACOS2 %{SYSLOGBASE} \[%{A10EVENT:event}(\]\<([0-9])+\>) partition-id\<%{INT:partition_id}\>([ ]\<%{DATA:partition_name}\>)? %{A10MSGACOS2:message}
 A101BASEACOS2 \[%{A10EVENT:event}(\]\<([0-9])+\>) partition-id\<%{INT:partition_id}\>([ ]\<%{DATA:partition_name}\>)? %{A10MSGACOS2:message}
-A101BASEGENERIC \[%{A10EVENT:event}(\]\<([0-9])+\>) %{GREEDYDATA:message}
+
+A10BASEGENERIC %{SYSLOGBASE} \[%{A10EVENT:event}(\]\<([0-9])+\>) %{GREEDYDATA:message}
+A101BASEGENERIC1 \[%{A10EVENT:event}(\]\<([0-9])+\>) partition-id\<%{INT:partition_id}\>\s+\<%{DATA:partition_name}\> %{GREEDYDATA:message} 
+A101BASEGENERIC2 \[%{A10EVENT:event}(\]\<([0-9])+\>) %{GREEDYDATA:message}
 
 #HMON
 A10MSGHMON SLB %{WORD:slb_type} %{DATA:slb_server} \(%{IP:slb_server_ip}\)([ ]%{WORD:protocol})?([ ]port %{INT:slb_server_port})?([ ]of group[ ]%{WORD:slb_service_group})? is %{WORD:slb_server_port_status} \((real|%{WORD:slb_server_status_proto})?([ ]%{A10STATMSG})? %{GREEDYDATA:slb_server_status_code}\).*

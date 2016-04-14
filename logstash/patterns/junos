@@ -5,10 +5,15 @@ JUNOSBASE %{CISCOTIMESTAMP:timestamp} (%{JUNOSHOST:logsource}|%{SYSLOGHOST:logso
 INTERFACE ([a-zA-Z0-9]+[\.\-\/]?)+
 
 ## TRAFFIC FLOW EVENTS
-RT_FLOW_EVENT (RT_FLOW_SESSION_CREATE|RT_FLOW_SESSION_CLOSE|RT_FLOW_SESSION_DENY)
+RT_FLOW_EVENT (RT_FLOW_SESSION_CREATE|RT_FLOW_SESSION_CLOSE|RT_FLOW_SESSION_DENY|FLOW_IP_ACTION)
 RT_FLOW1 %{RT_FLOW_EVENT:event}: %{GREEDYDATA:close_reason}: %{IP:src_ip}/%{INT:src_port:int}->%{IP:dst_ip}/%{INT:dst_port:int} %{DATA:service} %{IP:nat_src_ip}/%{DATA:nat_src_port:int}->%{IP:nat_dst_ip}/%{DATA:nat_dst_port:int} %{DATA:src_nat_rule_name} %{DATA:dst_nat_rule_name} %{INT:protocol_id:int} %{DATA:policy_name} %{DATA:from_zone} %{DATA:to_zone} %{INT:session_id:int} \d+\(%{INT:sent:int}\) \d+\(%{INT:received:int}\) %{INT:elapsed_time:int}
 RT_FLOW2 %{RT_FLOW_EVENT:event}: session created %{IP:src_ip}/%{INT:src_port:int}->%{IP:dst_ip}/%{INT:dst_port:int} %{DATA:service} %{IP:nat_src_ip}/%{INT:nat_src_port:int}->%{IP:nat_dst_ip}/%{INT:nat_dst_port:int} %{DATA:src_nat_rule_name} %{DATA:dst_nat_rule_name} %{INT:protocol_id:int} %{DATA:policy_name} %{DATA:from_zone} %{DATA:to_zone} %{INT:session_id:int}
 RT_FLOW3 %{RT_FLOW_EVENT:event}: session denied %{IP:src_ip}/%{INT:src_port:int}->%{IP:dst_ip}/%{INT:dst_port:int} %{DATA:service} %{INT:protocol_id:int}\(\d\) %{DATA:policy_name} %{DATA:from_zone} %{DATA:to_zone}
+RT_FLOW4 %{RT_FLOW_EVENT:event}: Flow IP action detected attack attempt: %{IP:src_ip}/%{INT:src_port} --> %{IP:dst_ip}/%{INT:dst_port} .* interface %{DATA:src_intf}, from zone %{DATA:src_zone}, action %{GREEDYDATA:action}.
+
+## IDP FLOW EVENTS
+RT_IDP_EVENT (IDP_ATTACK_LOG_EVENT)
+RT_IDP1 %{RT_IDP_EVENT:event}: IDP: at %{INT:unix_time}, %{DATA:log_type} Attack log <%{IP:src_ip}/%{DATA:src_port}->%{IP:dst_ip}/%{DATA:dst_port}> for %{DATA:protocol} protocol and service %{DATA:service} application %{DATA:application} by rule %{DATA:rule_id} of rulebase %{DATA:rulebase} in policy %{DATA:policy}. attack: repeat=%{DATA:repeat}, action=%{DATA:action}, threat-severity=%{DATA:threat_severity}, name=%{DATA:attack_type}, NAT <%{IP:nat_src_ip}:%{INT:nat_src_port}->%{IP:nat_dst_ip}:%{INT:nat_dst_port}>, time-elapsed=%{DATA:time_elapsed}, inbytes=%{INT:inbytes}, outbytes=%{INT:outbytes}, inpackets=%{INT:inpackets}, outpackets=%{INT:outpackets}, intf:%{DATA:from_zone}:%{DATA:src_intf}->%{DATA:to_zone}:%{DATA:dst_intf}, packet-log-id: %{INT:packet_id}, alert=%{DATA:alert} and misc-message %{DATA:misc_message}
 
 ## SIMPLE PARSER
 JUNOS_SIMPLE %{SYSLOGTIMESTAMP:timestamp} %{SYSLOGHOST:logsource} %{SYSLOGHOST} %{GREEDYDATA:message}
@@ -29,16 +34,20 @@ KMD_SAMSG Local gateway: %{IP:local_ip}, Remote gateway: %{IP:peer_ip}, Local ID
 DVPNIKEID_USER ([a-z]+\.?)+\-[a-z]+
 DVPNIKEID_HASH [a-z0-9]+
 DVPNIKEID (%{DVPNIKEID_USER}|%{DVPNIKEID_HASH})
+DOMUSER %{USER:domain}\\%{USER:username}
 
-DVPNDEL Connection manager receives delete request from the client for user %{USER:username} ike-id %{DVPNIKEID:ike_id}
+DVPNDEL Connection manager receives delete request from the client for user %{DOMUSER} ike-id %{DVPNIKEID:ike_id}
 DVPNSA Connection manager receives SA [a-z]+ notification for ike-id %{DVPNIKEID:ike_id}
-DVPNLIC Server successfully got an Access Manager license for %{USER:username}
+DVPNLIC Server successfully (?:(got)|(freed)) an Access Manager license for %{DOMUSER}
 DVPNAOK token %{DVPNIKEID:token} with client identifier %{DVPNIKEID:client_id} .*
+DVPNAINVALID user %{DOMUSER} is invalid
+DVPNAUTHOK user %{DOMUSER} with remote IP %{IP:peer_ip} authenticated successfully.
 
 JUN_DVPNDEL %{DATA:event}: %{DVPNDEL:message}
 JUN_DVPNSA %{DATA:event}: %{DVPNSA:message}
 JUN_DVPNLIC %{DATA:event}: %{DVPNLIC:message}
 JUN_DVPNAOK %{DATA:event}: %{DVPNAOK:message}
+JUN_DVPNAINVALID %{DATA:event}: %{DVPNAINVALID:message}
 
 ## IPSEC
 IPSECMSG ([a-zA-Z]+\s)+%{INTERFACE:interface}\s([a-zA-Z]+\s)+([0-9a-z])+!
@@ -47,7 +56,7 @@ IPSEC_REPLAY %{DATA:event}: %{IPSECMSG:message} From %{IP:src_ip} to %{IP:dst_ip
 
 ## SYS EVENT
 RTPERF_CPU (RTPERF_CPU_THRESHOLD_EXCEEDED|RTPERF_CPU_USAGE_OK)
-RTPERF_MSG %{DATA:cpu_id} CPU utilization( returns to)? %{WORD:cpu_status}, current value=%{INT:cpu_load:int}
+RTPERF_MSG %{DATA:cpu_id} CPU utilization (:?(returns to normal)|(exceeds threshold)), current value=%{INT:cpu_load:int}
 RTPERF_EVENT %{RTPERF_CPU:event}: %{RTPERF_MSG:message}
 
 ## UI CHANGE
